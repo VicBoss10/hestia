@@ -1,11 +1,35 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common'; // AGREGA ESTA LÍNEA
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [RouterLink],
+  imports: [CommonModule, FormsModule], // AGREGA CommonModule AQUÍ
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.css'],
 })
-export class RegisterComponent {}
+export class RegisterComponent {
+  email: string = '';
+  password: string = '';
+  username: string = '';
+  error: string = '';
+  loading: boolean = false;
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  async register() {
+    this.error = '';
+    this.loading = true;
+    try {
+      await this.authService.register(this.email, this.password);
+      this.router.navigate(['/login']);
+    } catch (e) {
+      this.error = (e as any)?.message ?? 'Error al registrar';
+      console.error(e);
+    }
+    this.loading = false;
+  }
+}

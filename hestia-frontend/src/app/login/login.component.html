@@ -1,11 +1,12 @@
 <div class="auth-container">
   <div class="auth-card">
-    <h2>Iniciar Sesión</h2>
-    <form>
-      <input type="email" placeholder="Correo electrónico" required />
-      <input type="password" placeholder="Contraseña" required />
-      <button type="submit">Entrar</button>
+    <h2>Iniciar sesión</h2>
+    <form (ngSubmit)="login()">
+      <input type="email" placeholder="Correo electrónico" [(ngModel)]="email" name="email" required />
+      <input type="password" placeholder="Contraseña" [(ngModel)]="password" name="password" required />
+      <button type="submit" [disabled]="loading">Entrar</button>
     </form>
-    <p>¿No tienes cuenta? <a routerLink="/register">Regístrate aquí</a></p>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    <p>¿No tienes cuenta? <a routerLink="/register">Regístrate</a></p>
   </div>
 </div>

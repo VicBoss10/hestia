@@ -4,13 +4,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/user.module';
 import { GesturesModule } from './gestures/gesture.module';
 import { GestureDetectionsModule } from './detections/detection.module';
+import { StatsModule } from './stats/stats.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User } from './users/entities/user.entity';
 import { Gesture } from './gestures/entities/gesture.entity';
 import { Detection } from './detections/entities/detection.entity';
 import { Stat } from './stats/entities/stat.entity';
-import { StatsModule } from './stats/stats.module';
+import { FirebaseAdminService } from './firebase-admin.service';
 
 @Module({
   imports: [
@@ -34,6 +35,6 @@ import { StatsModule } from './stats/stats.module';
     StatsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, FirebaseAdminService],
 })
 export class AppModule {}
