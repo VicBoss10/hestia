@@ -9,6 +9,8 @@
       <button type="submit" [disabled]="loading">Crear cuenta</button>
     </form>
     <div *ngIf="error" class="error">{{ error }}</div>
-    <p>¿Ya tienes una cuenta? <a routerLink="/login">Inicia sesión</a></p>
+    <p>¿Ya tienes una cuenta? 
+      <a routerLink="/login">Inicia sesión</a></p>
+          <a routerLink="/login" routerLinkActive="active" class="btn-outline">Iniciar Sesión</a>
   </div>
 </div>

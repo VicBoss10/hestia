@@ -1,35 +1,68 @@
 <nav class="navbar">
-  <div class="logo">Hestia</div>
+  <div class="logo">Hestia<span class="dot">.</span></div>
   <div class="nav-links">
-    <a routerLink="/login" routerLinkActive="active">Login</a>
-    <a routerLink="/register" routerLinkActive="active">Register</a>
+    <a routerLink="/login" routerLinkActive="active" class="btn-outline">Iniciar Sesión</a>
+    <a routerLink="/register" routerLinkActive="active" class="btn">Registrarse</a>
+  </div>
+  <div class="burger">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 </nav>
 
-<div class="landing-content">
-  <h1>Bienvenido a <span>Hestia</span></h1>
-  <p>Controla tu computadora con solo mover tu mano. Tecnología intuitiva, sin contacto, y al alcance de todos.</p>
-  <div class="buttons">
-    <a routerLink="/login" class="btn">Iniciar sesión</a>
-    <a routerLink="/register" class="btn btn-outline">Registrarse</a>
+<section class="hero">
+  <div class="landing-content">
+    <h1>Controla tu mundo con <span>Hestia</span></h1>
+    <p>Interactúa con tu computadora usando solo tus manos. Tecnología intuitiva, sin contacto, impulsada por visión computacional e inteligencia artificial.</p>
+    
   </div>
-</div>
+</section>
 
 <section class="features">
   <div class="card">
-    <h3>Control por gestos</h3>
-    <p>Usa movimientos naturales de tu mano para ejecutar acciones como abrir programas, navegar o ajustar volumen sin tocar el teclado.</p>
+    <h3>🤖 Control por gestos</h3>
+    <p>Abre aplicaciones, navega o ajusta el volumen con movimientos naturales de tu mano.</p>
   </div>
   <div class="card">
-    <h3>Inteligencia Artificial</h3>
-    <p>El sistema reconoce tus gestos mediante visión computacional e IA, aprendiendo y adaptándose a tus movimientos.</p>
+    <h3>🧠 Inteligencia Artificial</h3>
+    <p>Reconocimiento preciso de gestos usando IA, aprendizaje automático y visión por computadora.</p>
   </div>
   <div class="card">
-    <h3>Accesibilidad y libertad</h3>
-    <p>Ideal para mejorar la accesibilidad, realizar presentaciones o trabajar sin contacto físico, brindando una experiencia fluida y moderna.</p>
+    <h3>🌍 Accesibilidad y libertad</h3>
+    <p>Ideal para personas con movilidad reducida o para experiencias sin contacto.</p>
+  </div>
+  <div class="card">
+    <h3>⚡ Rápido y eficiente</h3>
+    <p>Tiempo de respuesta instantáneo, navegación fluida y control sin retrasos.</p>
+  </div>
+  <div class="card">
+    <h3>💻 Compatibilidad total</h3>
+    <p>Funciona en Windows, Mac y Linux, integrándose con tus aplicaciones favoritas.</p>
+  </div>
+</section>
+
+<section class="about">
+  <div class="about-content">
+    <h2>¿Cómo funciona Hestia?</h2>
+    <p>Hestia captura los movimientos de tus manos mediante la cámara de tu dispositivo y los traduce en acciones en la computadora. Todo sin tocar ningún periférico, haciendo tu experiencia más intuitiva y futurista.</p>
+    <div class="about-cards">
+      <div class="about-card">
+        <h4>Visualización precisa</h4>
+        <p>Detección de manos en tiempo real con algoritmos avanzados de visión computacional.</p>
+      </div>
+      <div class="about-card">
+        <h4>Aprendizaje inteligente</h4>
+        <p>El sistema aprende tus gestos y mejora con cada interacción.</p>
+      </div>
+      <div class="about-card">
+        <h4>Personalización</h4>
+        <p>Configura tus gestos favoritos para acciones específicas y personaliza tu experiencia.</p>
+      </div>
+    </div>
   </div>
 </section>
 
 <footer class="footer">
-  <p>&copy; 2025 Hestia. Todos los derechos reservados.</p>
+  <p>&copy; 2025 <strong>Hestia</strong> — Proyecto desarrollado por Victor Manuel Narvaez y Juan Daniel Ortega</p> 
 </footer>

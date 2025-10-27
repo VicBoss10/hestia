@@ -1,0 +1,17 @@
+<div class="camera-container">
+  <h2>Selecciona una cámara</h2>
+  <select (change)="onDeviceChange($event)">
+    <option *ngFor="let device of devices" [value]="device.deviceId">
+      {{ device.label || 'Cámara ' + device.deviceId }}
+    </option>
+  </select>
+
+  <div class="video-wrapper">
+    <video #video autoplay playsinline muted></video>
+  </div>
+
+  <div class="buttons">
+    <button (click)="startCamera()" [disabled]="cameraActive">🎥 Activar cámara</button>
+    <button (click)="stopCamera()" [disabled]="!cameraActive">⛔ Detener cámara</button>
+  </div>
+</div>

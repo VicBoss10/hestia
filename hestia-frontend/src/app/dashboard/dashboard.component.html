@@ -1,4 +1,23 @@
-<div class="dashboard-container">
-  <h1>Bienvenido al dashboard</h1>
-  <button (click)="logout()">Cerrar sesión</button>
+<div class="dashboard">
+  <aside class="sidebar">
+    <h2 class="logo">Hestia</h2>
+    <nav>
+      <button (click)="selectView('home')">🏠 Inicio</button>
+      <button (click)="selectView('camera')">📷 Cámara</button>
+      <button class="logout" (click)="logout()">🚪 Cerrar sesión</button>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div *ngIf="selectedView === 'home'" class="home">
+      <h1>Bienvenido al Panel de Control</h1>
+      <div class="cards">
+        <div class="card">👁️ Detección de gestos</div>
+        <div class="card">🤖 Integración IA</div>
+        <div class="card">⚙️ Configuración avanzada</div>
+      </div>
+    </div>
+
+    <app-camera *ngIf="selectedView === 'camera'"></app-camera>
+  </main>
 </div>
