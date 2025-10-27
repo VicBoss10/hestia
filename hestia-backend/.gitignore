@@ -41,6 +41,9 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
+# Firebase Admin private key
+hestia-f16f5-firebase-adminsdk-fbvsc-fb2a4d155b.json
+firebase-key.json
 
 # temp directory
 .temp
