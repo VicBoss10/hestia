@@ -2,15 +2,18 @@
   <div class="auth-card">
     <h2>Registrarse</h2>
     <form (ngSubmit)="register()">
-      <!-- Si quieres capturar usuario aparte, crea variable "username" en el TS -->
-      <input type="text" placeholder="Usuario" [(ngModel)]="username" name="username" />
+      <input type="text" placeholder="Usuario" [(ngModel)]="username" name="username" required />
       <input type="email" placeholder="Correo electrónico" [(ngModel)]="email" name="email" required />
       <input type="password" placeholder="Contraseña" [(ngModel)]="password" name="password" required />
       <button type="submit" [disabled]="loading">Crear cuenta</button>
     </form>
     <div *ngIf="error" class="error">{{ error }}</div>
-    <p>¿Ya tienes una cuenta? 
-      <a routerLink="/login">Inicia sesión</a></p>
-          <a routerLink="/login" routerLinkActive="active" class="btn-outline">Iniciar Sesión</a>
+    <p>
+      ¿Ya tienes una cuenta? 
+      <a href="/login">Iniciar sesión</a>
+    </p>
+    <div class="auth-links">
+      <a href="/" class="back-home">Volver a inicio</a>
+    </div>
   </div>
 </div>

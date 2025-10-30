@@ -4,8 +4,13 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  min-width: 100vw;
   background: linear-gradient(to bottom right, #0b132b, #040814);
+  margin: 0;
   padding: 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 /* ---- Tarjeta de login ---- */
@@ -96,6 +101,27 @@
   color: #00bfa5;
 }
 
+/* ---- Enlaces de registro ---- */
+.auth-links {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.back-home {
+  color: #00ffc8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.back-home:hover {
+  opacity: 1;
+  color: #00bfa5;
+}
+
 /* ---- Animación ---- */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(30px); }
@@ -108,3 +134,4 @@
     padding: 2rem;
   }
 }
+

@@ -9,7 +9,10 @@
     <div *ngIf="error" class="error">{{ error }}</div>
     <p>
       ¿No tienes cuenta?
-          <a routerLink="/register" routerLinkActive="active" class="btn">Registrarse</a>
+      <a (click)="goToRegister()" class="register-link">Registrarse</a>
     </p>
+    <div class="auth-links">
+      <a (click)="goHome()" class="back-home">Volver a inicio</a>
     </div>
+  </div>
 </div>

@@ -1,23 +1,94 @@
 <div class="dashboard">
   <aside class="sidebar">
-    <h2 class="logo">Hestia</h2>
+    <div class="logo-container">
+      <img src="assets/img/Hestia.png" alt="Hestia Logo" class="logo-img">
+      <h2 class="logo">Hestia</h2>
+    </div>
     <nav>
-      <button (click)="selectView('home')">🏠 Inicio</button>
-      <button (click)="selectView('camera')">📷 Cámara</button>
-      <button class="logout" (click)="logout()">🚪 Cerrar sesión</button>
+      <button (click)="selectView('home')" [class.active]="selectedView === 'home'">
+        <img src="assets/img/home.png" alt="Inicio" class="nav-icon">
+        <span>Inicio</span>
+      </button>
+      <button (click)="selectView('camera')" [class.active]="selectedView === 'camera'">
+        <img src="assets/img/camara.png" alt="Cámara" class="nav-icon">
+        <span>Cámara</span>
+      </button>
+      <button (click)="selectView('examples')" [class.active]="selectedView === 'examples'">
+        <img src="assets/img/imagenes.png" alt="Ejemplos" class="nav-icon">
+        <span>Ejemplos</span>
+      </button>
+      <button class="logout" (click)="logout()">
+        <img src="assets/img/cerrar.png" alt="Cerrar sesión" class="nav-icon">
+        <span>Cerrar sesión</span>
+      </button>
     </nav>
   </aside>
 
   <main class="content">
     <div *ngIf="selectedView === 'home'" class="home">
-      <h1>Bienvenido al Panel de Control</h1>
+      <div class="welcome-section">
+        <h1>Bienvenido</h1>
+        <p class="welcome-text">Sistema de control gestual mediante IA para interacción natural con dispositivos</p>
+      </div>
+
+      <div class="stats-section">
+        <div class="stat-card">
+          <span class="stat-number">98%</span>
+          <span class="stat-label">Precisión</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">45ms</span>
+          <span class="stat-label">Latencia</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Disponibilidad</span>
+        </div>
+      </div>
+
+      <h2 class="section-title">Características Principales</h2>
       <div class="cards">
-        <div class="card">👁️ Detección de gestos</div>
-        <div class="card">🤖 Integración IA</div>
-        <div class="card">⚙️ Configuración avanzada</div>
+        <div class="card feature-card">
+          <div class="card-icon">👁️</div>
+          <h3>Detección de gestos</h3>
+          <p>Reconocimiento preciso de movimientos y gestos en tiempo real</p>
+        </div>
+        <div class="card feature-card">
+          <div class="card-icon">🤖</div>
+          <h3>Integración IA</h3>
+          <p>Algoritmos avanzados de aprendizaje automático</p>
+        </div>
+        <div class="card feature-card">
+          <div class="card-icon">⚙️</div>
+          <h3>Configuración avanzada</h3>
+          <p>Personalización completa de gestos y acciones</p>
+        </div>
+      </div>
+
+    </div>
+    <div *ngIf="selectedView === 'examples'" class="examples">
+      <h1>Ejemplos de movimientos</h1>
+      <div class="gallery">
+        <div class="gallery-item">
+          <img src="assets/img/movi.jpeg" alt="Ejemplo de gesto 1">
+          <p>Gesto de mover mouse</p>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/img/movi.jpeg" alt="Ejemplo de gesto 2">
+          <p>Gesto de dar click</p>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/img/movi.jpeg" alt="Ejemplo de gesto 3">
+          <p>Gesto de selección detectado</p>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/img/movi.jpeg" alt="Ejemplo de gesto 4">
+          <p>Gesto de navegación detectado</p>
+        </div>
       </div>
     </div>
 
     <app-camera *ngIf="selectedView === 'camera'"></app-camera>
   </main>
 </div>
+
