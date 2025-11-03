@@ -17,6 +17,7 @@ export class RegisterComponent {
   username: string = '';
   error: string = '';
   loading: boolean = false;
+  success: boolean = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -25,11 +26,19 @@ export class RegisterComponent {
     this.loading = true;
     try {
       await this.authService.register(this.email, this.password, this.username, 'user');
-      this.router.navigate(['/login']);
+      this.success = true;
+      this.loading = false;
+      // Opcional: redirigir al login tras un pequeño delay
+      // setTimeout(() => this.router.navigate(['/login'], { queryParams: { registered: 1 } }), 1200);
     } catch (e) {
       this.error = (e as any)?.message ?? 'Error al registrar';
+      this.success = false;
       console.error(e);
     }
     this.loading = false;
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 }

@@ -134,3 +134,43 @@
     padding: 2rem;
   }
 }
+
+/* ---- Banner de éxito ---- */
+.success-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #a7f3d0;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+}
+
+.success-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  background: #10b981;
+  color: #0b132b;
+  border-radius: 50%;
+  font-weight: 800;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.success-link {
+  color: #00ffc8;
+  font-weight: 600;
+  margin-left: auto;
+  text-decoration: none;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.success-link:hover {
+  color: #00bfa5;
+  opacity: 0.95;
+}

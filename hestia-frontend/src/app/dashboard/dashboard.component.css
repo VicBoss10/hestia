@@ -103,12 +103,14 @@
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
-  background: #ffffff;
+  background: radial-gradient(circle at top left, #0b132b, #040814 70%);
   margin: 0;
   height: 100vh;
-  border-radius: 30px 0 0 30px;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+  border-radius: 0; /* elimina curvatura para unirse mejor al sidebar */
+  box-shadow: none; /* quita el borde interno claro */
+  color: #ffffff;
 }
+
 
 .cards {
   display: flex;
