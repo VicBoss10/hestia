@@ -14,6 +14,10 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: 'http://localhost:4200',
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Hestia - Gesture Control API')
     .setDescription('API for gesture recognition and statistics tracking')
