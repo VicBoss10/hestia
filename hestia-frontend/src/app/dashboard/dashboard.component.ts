@@ -4,13 +4,19 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { CameraComponent } from './camera/camera.component';
 import { UserManagementComponent } from './users/user-management.component';
+import { StatsComponent } from './stats/stats.component'; // <-- 1. IMPORTAR
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, CameraComponent, UserManagementComponent],
+  imports: [
+    CommonModule,
+    CameraComponent,
+    UserManagementComponent,
+    StatsComponent, // <-- 2. AÑADIR A IMPORTS
+  ],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent {
   selectedView: string = 'home';
@@ -25,5 +31,4 @@ export class DashboardComponent {
     await this.auth.logout();
     this.router.navigate(['/login']);
   }
- 
 }

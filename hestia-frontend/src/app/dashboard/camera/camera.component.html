@@ -1,17 +1,17 @@
 <div class="camera-container">
-  <h2>Selecciona una cámara</h2>
-  <select (change)="onDeviceChange($event)">
-    <option *ngFor="let device of devices" [value]="device.deviceId">
-      {{ device.label || 'Cámara ' + device.deviceId }}
-    </option>
-  </select>
+  <h2>Control de Detección de Gestos</h2>
+  <p>
+    Usa los botones para iniciar o detener el servicio de reconocimiento de gestos.
+    El video se mostrará abajo cuando esté activo.
+  </p>
 
   <div class="video-wrapper">
-    <video #video autoplay playsinline muted></video>
+    <!-- El stream de video se mostrará aquí -->
+    <img [src]="videoStreamUrl" alt="Video Stream" width="100%">
   </div>
 
   <div class="buttons">
-    <button (click)="startCamera()" [disabled]="cameraActive">🎥 Activar cámara</button>
-    <button (click)="stopCamera()" [disabled]="!cameraActive">⛔ Detener cámara</button>
+    <button (click)="startStreaming()" [disabled]="isStreaming">▶️ Iniciar Detección</button>
+    <button (click)="stopStreaming()" [disabled]="!isStreaming">⏹️ Detener Detección</button>
   </div>
 </div>

@@ -1,95 +1,64 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-camera',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HttpClientModule],
   templateUrl: './camera.component.html',
   styleUrls: ['./camera.component.css']
 })
-export class CameraComponent implements OnInit {
-  @ViewChild('video', { static: true }) video!: ElementRef<HTMLVideoElement>;
-  devices: MediaDeviceInfo[] = [];
-  selectedDeviceId: string = '';
-  stream: MediaStream | null = null;
-  cameraActive = false;
+export class CameraComponent implements OnDestroy {
+  isStreaming = false;
+  // URL del endpoint de streaming del servicio de Python
+  private readonly streamUrl = 'http://localhost:5000/';
+  // URL del backend de NestJS
+  private readonly apiUrl = 'http://localhost:3000/media-pipe';
+  
+  videoStreamUrl: SafeUrl;
 
-  async ngOnInit() {
-    try {
-      // Solicitar permiso inmediatamente para listar las cámaras
-      await navigator.mediaDevices.getUserMedia({ video: true });
-
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      this.devices = devices.filter(device => device.kind === 'videoinput');
-
-      // Selecciona la cámara integrada (normalmente la primera)
-      if (this.devices.length > 0) {
-        const integratedCamera = this.devices.find(d =>
-          d.label.toLowerCase().includes('integrada') ||
-          d.label.toLowerCase().includes('built-in') ||
-          d.label.toLowerCase().includes('default')
-        );
-
-        this.selectedDeviceId = integratedCamera
-          ? integratedCamera.deviceId
-          : this.devices[0].deviceId;
-
-        console.log('📸 Cámara seleccionada:', integratedCamera?.label || this.devices[0].label);
-      } else {
-        console.warn('No se detectaron cámaras disponibles.');
-      }
-    } catch (error) {
-      console.error('Error al listar cámaras:', error);
-      alert('No se pudo acceder a la cámara. Asegúrate de permitir el acceso en tu navegador.');
-    }
+  constructor(private http: HttpClient, private sanitizer: DomSanitizer) {
+    // Inicialmente, la URL apunta al stream. El backend de Python
+    // enviará una imagen negra si el stream no está activo.
+    this.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(this.streamUrl);
   }
 
-  async startCamera() {
-    try {
-      if (!this.selectedDeviceId) {
-        console.warn('No hay cámara seleccionada.');
-        return;
-      }
-
-      this.stopCamera();
-
-      const constraints = {
-        video: { deviceId: { exact: this.selectedDeviceId } },
-        audio: false
-      };
-
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      this.stream = stream;
-
-      const videoElement = this.video.nativeElement;
-      videoElement.srcObject = stream;
-
-      videoElement.onloadedmetadata = async () => {
-        await videoElement.play();
-        this.cameraActive = true;
-        console.log('✅ Cámara iniciada correctamente.');
-      };
-    } catch (error) {
-      console.error('❌ Error al iniciar la cámara:', error);
-      alert('No se pudo activar la cámara. Verifica los permisos.');
-    }
+  startStreaming(): void {
+    // Llama al backend de NestJS para que este inicie el servicio de Python
+    this.http.post(`${this.apiUrl}/start`, {}).subscribe({
+      next: () => {
+        this.isStreaming = true;
+        console.log('✅ Detección de gestos iniciada.');
+        // Forzamos la recarga de la imagen para asegurar que el stream se actualice
+        this.reloadStream();
+      },
+      error: (err) => console.error('❌ Error al iniciar la detección:', err)
+    });
   }
 
-  stopCamera() {
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
-      this.stream = null;
-      this.cameraActive = false;
-      console.log('🛑 Cámara detenida.');
-    }
+  stopStreaming(): void {
+    // Llama al backend de NestJS para detener el servicio
+    this.http.post(`${this.apiUrl}/stop`, {}).subscribe({
+      next: () => {
+        this.isStreaming = false;
+        console.log('🛑 Detección de gestos detenida.');
+      },
+      error: (err) => console.error('❌ Error al detener la detección:', err)
+    });
   }
 
-  async onDeviceChange(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    this.selectedDeviceId = select.value;
-    if (this.cameraActive) {
-      await this.startCamera();
+  private reloadStream(): void {
+    // Truco para evitar la caché del navegador añadiendo un timestamp
+    const newUrl = `${this.streamUrl}?t=${new Date().getTime()}`;
+    this.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(newUrl);
+  }
+
+  ngOnDestroy(): void {
+    // Buena práctica: si el componente se destruye, detenemos el streaming
+    if (this.isStreaming) {
+      this.stopStreaming();
     }
   }
 }

@@ -1,0 +1,54 @@
+.stats-container {
+  padding: 2rem;
+  color: #f3eded;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse; /* Clave para que los bordes se unan */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden; /* Para que el borde redondeado se aplique a la tabla */
+}
+
+th, td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  /* Borde solo en la parte inferior para separar filas */
+  border-bottom: 1px solid #e0e0e0; 
+}
+
+thead {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Quitamos el borde de la última fila para un look más limpio */
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background-color: #141414;
+}
+
+.info-text {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #777;
+  margin-top: 4rem;
+}

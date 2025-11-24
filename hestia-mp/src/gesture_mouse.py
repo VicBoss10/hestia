@@ -4,6 +4,14 @@ import pyautogui
 import time
 import subprocess
 import os
+import numpy as np
+# Nuevas importaciones para estadísticas y peticiones HTTP
+import requests
+import threading
+from datetime import datetime, timezone
+
+# Importamos la variable de estado desde el nuevo archivo compartido
+import shared_state
 
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(max_num_hands=1)
@@ -23,6 +31,78 @@ smooth_x, smooth_y = screen_width // 2, screen_height // 2
 
 app_last_opened = 0
 app_gesture_start = None
+
+# --- NUEVA SECCIÓN DE ESTADÍSTICAS ---
+
+# 1. Mapeo de gestos a IDs (basado en el JSON que generamos antes)
+GESTURE_ID_MAP = {
+    "click": 5,
+    "volume_up": 6,
+    "volume_down": 7,
+    "copy": 8,
+    "paste": 9,
+    "open_app_firefox": 10,
+}
+
+# 2. Diccionario para almacenar las estadísticas en memoria
+gesture_stats = {
+    gesture_name: {
+        "times_detected": 0,
+        "confidence_sum": 0.0,
+    } for gesture_name in GESTURE_ID_MAP.keys()
+}
+
+# 3. Endpoint del backend para las estadísticas
+STATS_ENDPOINT = "http://localhost:3000/stats"
+
+# 4. Función para enviar datos en un hilo separado (para no bloquear el video)
+def send_stats(payload):
+    print("--- DEBUG: Intentando enviar el siguiente payload ---")
+    # Imprimimos el tipo de dato para depuración
+    print(f"Tipo de avg_confidence: {type(payload['avg_confidence'])}")
+    print(payload)
+    print("-------------------------------------------------")
+    try:
+        # Usamos un timeout para no quedarnos esperando indefinidamente
+        response = requests.post(STATS_ENDPOINT, json=payload, timeout=2)
+        
+        # Esta línea es CLAVE: Lanza un error si el código de respuesta es 4xx o 5xx
+        response.raise_for_status() 
+        
+        print(f"✅ Stats sent successfully! Status: {response.status_code}")
+
+    except requests.exceptions.HTTPError as http_err:
+        # Captura errores específicos de HTTP (4xx, 5xx)
+        print(f"❌ HTTP error occurred: {http_err}")
+        print(f"   Status Code: {http_err.response.status_code}")
+        print(f"   Response Body: {http_err.response.text}")
+    except requests.exceptions.RequestException as e:
+        # Captura otros errores de red (conexión, timeout, etc.)
+        print(f"❌ Failed to send stats due to a network error: {e}")
+
+# --- NUEVA FUNCIÓN PARA AUTOMATIZAR EL ENVÍO ---
+def record_and_send_stats(gesture_name, confidence):
+    """
+    Actualiza las estadísticas de un gesto, crea el payload y lo envía al backend.
+    """
+    stats = gesture_stats[gesture_name]
+    stats["times_detected"] += 1
+    stats["confidence_sum"] += confidence
+    
+    # Redondeamos a 3 decimales para que coincida con la BBDD (scale: 3)
+    avg_conf = round(float(stats["confidence_sum"] / stats["times_detected"]), 3)
+
+    payload = {
+        "gesture_id": GESTURE_ID_MAP[gesture_name],
+        "times_detected": stats["times_detected"],
+        "avg_confidence": avg_conf,
+        "last_detected": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    }
+    
+    # Inicia el envío en un hilo separado para no bloquear el stream de video
+    threading.Thread(target=send_stats, args=(payload,)).start()
+
+# --- FIN DE LA NUEVA SECCIÓN ---
 
 def finger_up(hand_landmarks, tip_id, mcp_id, finger="other", handedness="Right"):
     tip = hand_landmarks.landmark[tip_id]
@@ -91,6 +171,18 @@ def draw_finger_markers(frame, hand_landmarks, frame_shape, handedness="Right"):
 def generate_frames():
     global prev_time, fps, index_was_up, smooth_x, smooth_y, app_gesture_start, app_last_opened, gesture_state
     while True:
+        # Comprueba el estado del streaming en cada iteración
+        if not shared_state.streaming_active:
+            # Si está inactivo, envía un frame negro y espera
+            black_frame = np.zeros((int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)), int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), 3), dtype=np.uint8)
+            (flag, encodedImage) = cv2.imencode(".jpg", black_frame)
+            if flag:
+                yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + 
+                      bytearray(encodedImage) + b'\r\n')
+            cv2.waitKey(100) # Espera para no consumir CPU
+            continue # Salta al siguiente ciclo del bucle
+
+        # Si el streaming está activo, procesa la cámara
         ret, frame = cap.read()
         if not ret:
             break
@@ -110,6 +202,9 @@ def generate_frames():
             handedness = results.multi_handedness[0].classification[0].label
 
         if results.multi_hand_landmarks:
+            # Obtenemos la confianza de la detección de la MANO
+            hand_confidence = results.multi_handedness[0].classification[0].score
+
             for hand_landmarks in results.multi_hand_landmarks:
                 palm_x, palm_y, palm_norm_x, palm_norm_y = palm_center(hand_landmarks, frame.shape)
                 cv2.circle(frame, (palm_x, palm_y), 10, (0, 255, 255), -1)
@@ -129,6 +224,10 @@ def generate_frames():
                     if not index_was_up:
                         pyautogui.click()
                         cv2.putText(frame, "CLICK", (palm_x, palm_y-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,0), 2)
+                        
+                        # --- Llama a la nueva función centralizada ---
+                        record_and_send_stats("click", hand_confidence)
+
                     index_was_up = True
                 else:
                     index_was_up = False
@@ -149,6 +248,9 @@ def generate_frames():
                         app_last_opened = now
                         cv2.putText(frame, "APP!", (palm_x, palm_y+40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
                         gesture_state["thumb_pinky"] = True
+                        
+                        # --- Llama a la nueva función centralizada ---
+                        record_and_send_stats("open_app_firefox", hand_confidence)
                 else:
                     app_gesture_start = None
                     gesture_state["thumb_pinky"] = False
@@ -159,6 +261,9 @@ def generate_frames():
                         os.system('amixer set Master 5%+')
                         cv2.putText(frame, "VOL+", (palm_x, palm_y+60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
                         gesture_state["thumb"] = True
+                        
+                        # --- Llama a la nueva función centralizada ---
+                        record_and_send_stats("volume_up", hand_confidence)
                 else:
                     gesture_state["thumb"] = False
 
@@ -168,6 +273,9 @@ def generate_frames():
                         os.system('amixer set Master 5%-')
                         cv2.putText(frame, "VOL-", (palm_x, palm_y+80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
                         gesture_state["pinky"] = True
+
+                        # --- Llama a la nueva función centralizada ---
+                        record_and_send_stats("volume_down", hand_confidence)
                 else:
                     gesture_state["pinky"] = False
 
@@ -177,6 +285,9 @@ def generate_frames():
                         pyautogui.hotkey('ctrl', 'c')
                         cv2.putText(frame, "COPY", (palm_x, palm_y+100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,0), 2)
                         gesture_state["index_middle"] = True
+
+                        # --- Llama a la nueva función centralizada ---
+                        record_and_send_stats("copy", hand_confidence)
                 else:
                     gesture_state["index_middle"] = False
 
@@ -186,18 +297,20 @@ def generate_frames():
                         pyautogui.hotkey('ctrl', 'v')
                         cv2.putText(frame, "PASTE", (palm_x, palm_y+120), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,255), 2)
                         gesture_state["index_middle_ring"] = True
+
+                        # --- Llama a la nueva función centralizada ---
+                        record_and_send_stats("paste", hand_confidence)
                 else:
                     gesture_state["index_middle_ring"] = False
 
                 draw_finger_markers(frame, hand_landmarks, frame.shape, handedness)
 
-        cv2.putText(frame, f"FPS: {int(fps)}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-        
-        # Codificar el frame en formato JPEG
-        (flag, encodedImage) = cv2.imencode(".jpg", frame)
-        if not flag:
+        # Convertimos el frame a JPEG para el streaming
+        ret, buffer = cv2.imencode('.jpg', frame)
+        if not ret:
             continue
-        
-        # Devolver el frame como parte de una respuesta multipart
-        yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + 
-              bytearray(encodedImage) + b'\r\n')
+        frame = buffer.tobytes()
+
+        # Enviamos el frame como parte del stream
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')

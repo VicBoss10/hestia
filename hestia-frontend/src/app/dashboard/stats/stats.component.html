@@ -1,0 +1,35 @@
+<div class="stats-container">
+  <h1>Estadísticas de Uso de Gestos</h1>
+
+  <!-- Mostramos la tabla si no estamos cargando y hay datos -->
+  <div *ngIf="!isLoading && displayStats.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Gesto</th>
+          <th>Veces Detectado</th>
+          <th>Confianza Promedio</th>
+          <th>Última Detección</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let stat of displayStats">
+          <td>{{ stat.gestureName }}</td> <!-- Usamos la nueva propiedad gestureName -->
+          <td>{{ stat.times_detected }}</td>
+          <td>{{ (stat.avg_confidence * 100).toFixed(1) }}%</td>
+          <td>{{ stat.last_detected | date:'medium' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mensaje si no hay datos después de cargar -->
+  <div *ngIf="!isLoading && displayStats.length === 0">
+    <p class="info-text">Aún no se han registrado estadísticas.</p>
+  </div>
+
+  <!-- Mensaje mientras los datos cargan -->
+  <div *ngIf="isLoading">
+    <p class="info-text">Cargando estadísticas...</p>
+  </div>
+</div>

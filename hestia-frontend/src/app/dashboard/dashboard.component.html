@@ -17,10 +17,14 @@
         <img src="assets/img/home.png" alt="Usuarios" class="nav-icon">
         <span>Usuarios</span>
       </button>
+      <button (click)="selectView('stats')" [class.active]="selectedView === 'stats'">
+        <img src="assets/img/home.png" alt="Estadísticas" class="nav-icon">
+        <span>Estadísticas</span>
+      </button>
       <button (click)="selectView('examples')" [class.active]="selectedView === 'examples'">
         <img src="assets/img/imagenes.png" alt="Ejemplos" class="nav-icon">
         <span>Ejemplos</span>
-      </button>
+      </button>      
       <button class="logout" (click)="logout()">
         <img src="assets/img/cerrar.png" alt="Cerrar sesión" class="nav-icon">
         <span>Cerrar sesión</span>
@@ -95,5 +99,8 @@
     <app-camera *ngIf="selectedView === 'camera'"></app-camera>
 
     <app-user-management *ngIf="selectedView === 'users'"></app-user-management>
+
+    <app-stats *ngIf="selectedView === 'stats'"></app-stats>
+
   </main>
 </div>
