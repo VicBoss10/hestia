@@ -19,12 +19,20 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty({
-    description: 'The password of the user',
-    example: '123456',
+    description: 'The role of the user',
+    example: 'user',
   })
   @IsString()
   @IsOptional()
   role?: string;
+
+  @ApiProperty({
+    description: 'The Firebase UID of the user',
+    example: 'firebase-uid-123',
+  })
+  @IsString()
+  @IsOptional()
+  firebaseUid?: string;
 }
 
 export class UpdateUserDto {
@@ -47,10 +55,18 @@ export class UpdateUserDto {
   email?: string;
 
   @ApiProperty({
-    description: 'The password of the user',
-    example: '123456',
+    description: 'The role of the user',
+    example: 'user',
   })
   @IsString()
   @IsOptional()
   role?: string;
+
+  @ApiProperty({
+    description: 'The Firebase UID of the user',
+    example: 'firebase-uid-123',
+  })
+  @IsString()
+  @IsOptional()
+  firebaseUid?: string;
 }

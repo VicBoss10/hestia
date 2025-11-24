@@ -13,6 +13,10 @@
         <img src="assets/img/camara.png" alt="Cámara" class="nav-icon">
         <span>Cámara</span>
       </button>
+      <button (click)="selectView('users')" [class.active]="selectedView === 'users'">
+        <img src="assets/img/home.png" alt="Usuarios" class="nav-icon">
+        <span>Usuarios</span>
+      </button>
       <button (click)="selectView('examples')" [class.active]="selectedView === 'examples'">
         <img src="assets/img/imagenes.png" alt="Ejemplos" class="nav-icon">
         <span>Ejemplos</span>
@@ -89,6 +93,7 @@
     </div>
 
     <app-camera *ngIf="selectedView === 'camera'"></app-camera>
+
+    <app-user-management *ngIf="selectedView === 'users'"></app-user-management>
   </main>
 </div>
-

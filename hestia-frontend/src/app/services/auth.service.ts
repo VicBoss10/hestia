@@ -22,11 +22,12 @@ export class AuthService {
       // 1. Crear usuario en Firebase
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
 
-      // 2. Crear usuario en backend local
+      // 2. Crear usuario en backend local con Firebase UID
       await firstValueFrom(this.http.post(this.apiUrl, {
         username,
         email,
-        role
+        role,
+        firebaseUid: userCredential.user.uid
       }));
 
       // 3. Si ambos OK, retorna el usuario

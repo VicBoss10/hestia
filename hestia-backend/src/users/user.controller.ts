@@ -35,6 +35,13 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  // Temporary endpoint to ensure admin user exists
+  @Post('ensure-admin')
+  @ApiOperation({ summary: 'Ensure admin user exists' })
+  async ensureAdmin(@Body() body: { email: string; username: string }) {
+    return this.usersService.ensureAdminExists(body.email, body.username);
+  }
+
   @UseGuards(FirebaseAuthGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
@@ -42,9 +49,20 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'User found', type: User })
   @ApiResponse({ status: 404, description: 'User not found' })
   async findUser(@Param('id', ParseIntPipe) id: number, @Req() req) {
-    // Opcional: permite solo acceder al propio perfil o chequear permisos.
-    if (req.user.uid !== id.toString()) {
-      throw new UnauthorizedException('No tienes acceso a este recurso');
+    try {
+      const currentUser = await this.usersService.getUserByEmail(req.user.email);
+      
+      // Allow if user is admin or accessing their own profile
+      if (currentUser.role !== 'admin' && currentUser.id !== id) {
+        throw new UnauthorizedException('No tienes acceso a este recurso');
+      }
+    } catch (error) {
+      // If the error is NotFoundException, it means the current user doesn't exist in DB
+      // Otherwise, rethrow the error (e.g., UnauthorizedException)
+      if (error.name === 'NotFoundException') {
+        throw new UnauthorizedException('Usuario no autenticado correctamente');
+      }
+      throw error;
     }
     return this.usersService.getUserById(id);
   }
@@ -69,8 +87,20 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async deleteUser(@Param('id', ParseIntPipe) id: number, @Req() req) {
-    if (req.user.uid !== id.toString()) {
-      throw new UnauthorizedException('No tienes permiso para eliminar este usuario');
+    try {
+      const currentUser = await this.usersService.getUserByEmail(req.user.email);
+      
+      // Allow if user is admin or deleting their own account
+      if (currentUser.role !== 'admin' && currentUser.id !== id) {
+        throw new UnauthorizedException('No tienes permiso para eliminar este usuario');
+      }
+    } catch (error) {
+      // If the error is NotFoundException, it means the current user doesn't exist in DB
+      // Otherwise, rethrow the error (e.g., UnauthorizedException)
+      if (error.name === 'NotFoundException') {
+        throw new UnauthorizedException('Usuario no autenticado correctamente');
+      }
+      throw error;
     }
     return this.usersService.delete(id);
   }
@@ -90,8 +120,20 @@ export class UsersController {
     @Body() changes: UpdateUserDto,
     @Req() req,
   ) {
-    if (req.user.uid !== id.toString()) {
-      throw new UnauthorizedException('No tienes permiso para modificar este usuario');
+    try {
+      const currentUser = await this.usersService.getUserByEmail(req.user.email);
+      
+      // Allow if user is admin or updating their own profile
+      if (currentUser.role !== 'admin' && currentUser.id !== id) {
+        throw new UnauthorizedException('No tienes permiso para modificar este usuario');
+      }
+    } catch (error) {
+      // If the error is NotFoundException, it means the current user doesn't exist in DB
+      // Otherwise, rethrow the error (e.g., UnauthorizedException)
+      if (error.name === 'NotFoundException') {
+        throw new UnauthorizedException('Usuario no autenticado correctamente');
+      }
+      throw error;
     }
     return this.usersService.update(id, changes);
   }

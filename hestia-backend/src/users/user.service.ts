@@ -41,6 +41,57 @@ export class UsersService {
     return this.userRepository.save(updateUser);
   }
 
+  async getUserByFirebaseUid(firebaseUid: string) {
+    const user = await this.userRepository.findOne({ where: { firebaseUid } });
+    if (!user) {
+      throw new NotFoundException(`User with Firebase UID ${firebaseUid} not found`);
+    }
+    return user;
+  }
+
+  async getUserByEmail(email: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+    return user;
+  }
+
+  async ensureAdminExists(email: string, username: string) {
+    // Check if user exists
+    let user = await this.userRepository.findOne({ where: { email } });
+    
+    if (user) {
+      // Update to admin if not already
+      if (user.role !== 'admin') {
+        user.role = 'admin';
+        await this.userRepository.save(user);
+        return { 
+          message: 'User updated to admin', 
+          user: { id: user.id, username: user.username, email: user.email, role: user.role }
+        };
+      }
+      return { 
+        message: 'User already exists as admin', 
+        user: { id: user.id, username: user.username, email: user.email, role: user.role }
+      };
+    }
+    
+    // Create new admin user
+    const newUser = this.userRepository.create({
+      username,
+      email,
+      role: 'admin',
+      firebaseUid: undefined
+    });
+    await this.userRepository.save(newUser);
+    
+    return { 
+      message: 'Admin user created successfully', 
+      user: { id: newUser.id, username: newUser.username, email: newUser.email, role: newUser.role }
+    };
+  }
+
   private async findOne(id: number) {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {

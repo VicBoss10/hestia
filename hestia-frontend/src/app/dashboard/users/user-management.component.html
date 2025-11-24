@@ -1,0 +1,177 @@
+<div class="user-management-container">
+  <div class="header">
+    <h1>Gestión de Usuarios</h1>
+    <div class="header-actions">
+      <button class="btn-create" (click)="openCreateModal()">
+        ➕ Crear Usuario
+      </button>
+      <button class="btn-refresh" (click)="loadUsers()" [disabled]="loading">
+        <span *ngIf="!loading">🔄 Actualizar</span>
+        <span *ngIf="loading">⏳ Cargando...</span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div class="table-container">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Fecha de Creación</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">
+              {{ user.role }}
+            </span>
+          </td>
+          <td>{{ user.createdAt | date: 'short' }}</td>
+          <td class="actions">
+            <button class="btn-edit" (click)="openEditModal(user)" title="Editar">
+              ✏️
+            </button>
+            <button class="btn-delete" (click)="openDeleteModal(user)" title="Eliminar">
+              🗑️
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0 && !loading">
+          <td colspan="6" class="no-data">No hay usuarios registrados</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Crear Nuevo Usuario</h2>
+      <button class="btn-close" (click)="closeCreateModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
+
+      <form (ngSubmit)="createUser()">
+        <div class="form-group">
+          <label for="create-username">Nombre de Usuario</label>
+          <input type="text" id="create-username" [(ngModel)]="createForm.username" name="username"
+            placeholder="Ingrese el nombre de usuario" required />
+        </div>
+
+        <div class="form-group">
+          <label for="create-email">Email</label>
+          <input type="email" id="create-email" [(ngModel)]="createForm.email" name="email"
+            placeholder="usuario@ejemplo.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="create-role">Rol</label>
+          <select id="create-role" [(ngModel)]="createForm.role" name="role">
+            <option value="user">Usuario</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeCreateModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-save" [disabled]="loading">
+            {{ loading ? 'Creando...' : 'Crear Usuario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Editar Usuario</h2>
+      <button class="btn-close" (click)="closeEditModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
+
+      <form (ngSubmit)="saveUser()">
+        <div class="form-group">
+          <label for="username">Nombre de Usuario</label>
+          <input type="text" id="username" [(ngModel)]="editForm.username" name="username" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" [(ngModel)]="editForm.email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="role">Rol</label>
+          <select id="role" [(ngModel)]="editForm.role" name="role">
+            <option value="user">Usuario</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeEditModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-save" [disabled]="loading">
+            {{ loading ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+  <div class="modal modal-small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Confirmar Eliminación</h2>
+      <button class="btn-close" (click)="closeDeleteModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
+
+      <p>¿Estás seguro de que deseas eliminar al usuario <strong>{{ userToDelete?.username }}</strong>?</p>
+      <p class="warning-text">Esta acción no se puede deshacer.</p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="closeDeleteModal()">
+          Cancelar
+        </button>
+        <button type="button" class="btn-delete-confirm" (click)="confirmDelete()" [disabled]="loading">
+          {{ loading ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
