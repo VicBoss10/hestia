@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyADaiDPJVMDK24jPMA45Y-Ez5xMcQ4Z8K8",
+    apiKey: "",
     authDomain: "hestia-f16f5.firebaseapp.com",
     projectId: "hestia-f16f5",
     storageBucket: "hestia-f16f5.appspot.com",
